@@ -1,0 +1,6 @@
+PLAN.md
+__pycache__/
+.venv
+
+.env
+.pytest_cache/
