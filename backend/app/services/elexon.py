@@ -63,7 +63,7 @@ def process_wind_data(actuals_data:list, forecasts_data:list)->dict[str, Any]:
         mse = ((df_math['forecast_generation'] - df_math['actual_generation'])**2).mean()
         rmse_val = float(mse ** 0.5)
 
-    df_merged = df_merged.where(pd.notnull(df_merged), None)
+    df_merged = df_merged.astype(object).where(pd.notnull(df_merged), None)
 
     return {
         "data": df_merged.to_dict(orient='records'),
