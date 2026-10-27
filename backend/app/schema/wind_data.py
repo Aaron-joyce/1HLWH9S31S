@@ -11,4 +11,4 @@ class WindDataPoint(BaseModel):
 
 class WindDataResposne(BaseModel):
     data:list[WindDataPoint]
-    mean_sqaure_error: float
+    root_mean_square_error: float

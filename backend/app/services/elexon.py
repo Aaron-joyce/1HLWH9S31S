@@ -55,13 +55,19 @@ def process_wind_data(actuals_data:list, forecasts_data:list)->dict[str, Any]:
     df_merged = df_merged.sort_values(by='start_time')
 
     df_math = df_merged.dropna(subset=['actual_generation', 'forecast_generation'])
-    mse = ((df_math['forecast_generation'] - df_math['actual_generation'])**2).mean()
+
+    if df_math.empty:
+        rmse_val = 0.0
+    else:
+        # Calculate MSE first, then take the square root (** 0.5)
+        mse = ((df_math['forecast_generation'] - df_math['actual_generation'])**2).mean()
+        rmse_val = float(mse ** 0.5)
 
     df_merged = df_merged.where(pd.notnull(df_merged), None)
 
-    return{
-     "data": df_merged.to_dict(orient='records'),
-     "mean_square_error": float(mse) if pd.notna(mse) else 0.0
+    return {
+        "data": df_merged.to_dict(orient='records'),
+        "root_mean_square_error": rmse_val
     }
 
 if __name__ == "__main__":
