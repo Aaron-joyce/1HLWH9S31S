@@ -45,3 +45,33 @@ def test_process_wind_data_empty_inputs():
 
     assert len(result["data"]) == 0
     assert result["root_mean_square_error"] == 0.0
+
+
+def test_process_wind_data_filters_ex_post_and_out_of_bounds():
+    mock_actuals = [
+        # Out of bounds (Dec 2025)
+        {"startTime": "2025-12-31T23:30:00Z", "generation": 80.0, "fuelType": "WIND"},
+        # Valid January
+        {"startTime": "2026-01-01T00:00:00Z", "generation": 100.0, "fuelType": "WIND"},
+        # Out of bounds (Feb 2026)
+        {"startTime": "2026-02-01T00:00:00Z", "generation": 110.0, "fuelType": "WIND"},
+    ]
+
+    mock_forecasts = [
+        # Valid pre-delivery forecast for 00:00
+        {"startTime": "2026-01-01T00:00:00Z", "generation": 95.0, "publishTime": "2025-12-31T12:00:00Z"},
+        # Ex-post / retrospective forecast published after delivery start (must be ignored)
+        {"startTime": "2026-01-01T00:00:00Z", "generation": 99.0, "publishTime": "2026-01-01T01:00:00Z"},
+        # Out of bounds forecast for Feb 2026
+        {"startTime": "2026-02-01T00:00:00Z", "generation": 120.0, "publishTime": "2026-01-31T12:00:00Z"},
+    ]
+
+    result = process_wind_data(mock_actuals, mock_forecasts)
+
+    # Only January 1 00:00 should remain
+    assert len(result["data"]) == 1
+    point = result["data"][0]
+    assert point["actual_generation"] == 100.0
+    # Must pick the pre-delivery forecast (95.0), not the ex-post (99.0)
+    assert point["forecast_generation"] == 95.0
+    assert result["root_mean_square_error"] == pytest.approx(5.0)
