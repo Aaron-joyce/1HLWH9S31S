@@ -13,8 +13,20 @@ interface UseWindDataState {
   refetch: () => Promise<void>;
 }
 
-const API_ENDPOINT =
-  import.meta.env.VITE_API_URL || "http://localhost:8080/api/v1/wind-data";
+function getApiEndpoint(): string {
+  const envUrl = import.meta.env.VITE_API_URL?.trim();
+  if (!envUrl) {
+    return "http://localhost:8080/api/v1/wind-data";
+  }
+  // If the user provided the base URL without endpoint path
+  if (!envUrl.includes("/api/v1/wind-data")) {
+    const cleanBase = envUrl.replace(/\/+$/, "");
+    return `${cleanBase}/api/v1/wind-data`;
+  }
+  return envUrl;
+}
+
+const API_ENDPOINT = getApiEndpoint();
 const MAX_RETRIES = 3;
 const INITIAL_BACKOFF_MS = 1000;
 

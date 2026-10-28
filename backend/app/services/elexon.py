@@ -1,10 +1,11 @@
 import asyncio
+import os
 from typing import Any
 
 import httpx
 import pandas as pd
 
-URL = "https://data.elexon.co.uk/bmrs/api/v1/datasets"
+URL = os.getenv("ELEXON_API_BASE_URL", "https://data.elexon.co.uk/bmrs/api/v1/datasets")
 
 
 async def fetch_wind_data() -> dict[str, Any]:
