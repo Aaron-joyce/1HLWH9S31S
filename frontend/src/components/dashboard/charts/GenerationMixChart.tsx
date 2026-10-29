@@ -7,7 +7,6 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { ChartPieSlice } from "@phosphor-icons/react";
 
 interface VarianceDistributionItem {
   category: string;
@@ -67,17 +66,14 @@ export function GenerationMixChart({
   return (
     <Card className="h-full border border-border/80 shadow-xs flex flex-col justify-between">
       <CardHeader className="pb-2 border-b border-border/40">
-        <div className="flex items-center gap-2">
-          <span className="flex h-7 w-7 items-center justify-center rounded-md bg-emerald-500/10 text-emerald-500">
-            <ChartPieSlice size={16} weight="bold" />
-          </span>
+        <div>
           <CardTitle className="text-base font-semibold tracking-tight">
             Forecast Error Distribution
           </CardTitle>
+          <CardDescription className="text-xs mt-1">
+            Settlement interval dispersion categorized by MW deviation threshold
+          </CardDescription>
         </div>
-        <CardDescription className="text-xs mt-1">
-          Settlement interval dispersion categorized by MW deviation threshold
-        </CardDescription>
       </CardHeader>
 
       <CardContent className="pt-2 pb-4 flex-1 flex flex-col justify-between">

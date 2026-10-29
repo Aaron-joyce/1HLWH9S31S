@@ -11,7 +11,6 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { CustomChartTooltip } from "./CustomChartTooltip";
 import type { WindDataPoint } from "@/types/wind";
 import { formatDateShort } from "@/lib/utils";
-import { Lightning } from "@phosphor-icons/react";
 
 interface GenerationVolumeChartProps {
   data: WindDataPoint[];
@@ -22,14 +21,9 @@ export function GenerationVolumeChart({ data }: GenerationVolumeChartProps) {
     <Card className="h-full border border-border/80 shadow-xs">
       <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-border/40">
         <div>
-          <div className="flex items-center gap-2">
-            <span className="flex h-7 w-7 items-center justify-center rounded-md bg-sky-500/10 text-sky-500">
-              <Lightning size={16} weight="bold" />
-            </span>
-            <CardTitle className="text-base font-semibold tracking-tight">
-              Generation Volume & Dispatch Envelope
-            </CardTitle>
-          </div>
+          <CardTitle className="text-base font-semibold tracking-tight">
+            Generation Volume & Dispatch Envelope
+          </CardTitle>
           <CardDescription className="text-xs mt-1">
             Real-time power volume delivered across UK grid transmission nodes
           </CardDescription>

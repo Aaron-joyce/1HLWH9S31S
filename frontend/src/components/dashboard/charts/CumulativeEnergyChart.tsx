@@ -13,7 +13,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { CustomChartTooltip } from "./CustomChartTooltip";
 import type { WindDataPoint, ForecastHorizon } from "@/types/wind";
 import { formatDateShort, formatNumber } from "@/lib/utils";
-import { TrendUp, ArrowUpRight, ArrowDownRight } from "@phosphor-icons/react";
+import { ArrowUpRight, ArrowDownRight } from "@phosphor-icons/react";
 
 interface CumulativeEnergyChartProps {
   data: WindDataPoint[];
@@ -67,14 +67,9 @@ export function CumulativeEnergyChart({
     <Card className="h-full border border-border/80 shadow-xs">
       <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-border/40">
         <div>
-          <div className="flex items-center gap-2">
-            <span className="flex h-7 w-7 items-center justify-center rounded-md bg-purple-500/10 text-purple-500">
-              <TrendUp size={16} weight="bold" />
-            </span>
-            <CardTitle className="text-base font-semibold tracking-tight">
-              Cumulative Energy & Wholesale Settlement Tracker
-            </CardTitle>
-          </div>
+          <CardTitle className="text-base font-semibold tracking-tight">
+            Cumulative Energy & Wholesale Settlement Tracker
+          </CardTitle>
           <CardDescription className="text-xs mt-1">
             Delivered volume ({totalActualGWh > 0 ? `${formatNumber(totalActualGWh, 1)} GWh` : "0 GWh"}) vs. {horizon === "intraday" ? "Intraday" : "Day-Ahead"} target ({totalForecastGWh > 0 ? `${formatNumber(totalForecastGWh, 1)} GWh` : "0 GWh"})
           </CardDescription>

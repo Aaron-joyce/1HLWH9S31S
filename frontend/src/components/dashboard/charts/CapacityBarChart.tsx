@@ -10,7 +10,6 @@ import {
 } from "recharts";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { CustomChartTooltip } from "./CustomChartTooltip";
-import { ChartBar } from "@phosphor-icons/react";
 
 interface HourlyProfilePoint {
   hour: string;
@@ -28,14 +27,9 @@ export function CapacityBarChart({ data }: CapacityBarChartProps) {
     <Card className="h-full border border-border/80 shadow-xs">
       <CardHeader className="flex flex-row items-center justify-between pb-3 border-b border-border/40">
         <div>
-          <div className="flex items-center gap-2">
-            <span className="flex h-7 w-7 items-center justify-center rounded-md bg-amber-500/10 text-amber-500">
-              <ChartBar size={16} weight="bold" />
-            </span>
-            <CardTitle className="text-base font-semibold tracking-tight">
-              Diurnal Hourly Load Profile
-            </CardTitle>
-          </div>
+          <CardTitle className="text-base font-semibold tracking-tight">
+            Diurnal Hourly Load Profile
+          </CardTitle>
           <CardDescription className="text-xs mt-1">
             24-hour settlement profile comparing average actual vs. forecast yield (UTC)
           </CardDescription>

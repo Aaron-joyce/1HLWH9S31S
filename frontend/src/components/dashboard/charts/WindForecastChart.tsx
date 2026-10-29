@@ -14,7 +14,6 @@ import { CustomChartTooltip } from "./CustomChartTooltip";
 import type { WindDataPoint, ForecastHorizon } from "@/types/wind";
 import type { ChartSeriesToggle } from "@/types/analytics";
 import { formatDateShort } from "@/lib/utils";
-import { ChartLineUp, Eye, EyeSlash } from "@phosphor-icons/react";
 
 interface WindForecastChartProps {
   data: WindDataPoint[];
@@ -50,14 +49,9 @@ export function WindForecastChart({
     <Card className="h-full border border-border/80 shadow-xs">
       <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-border/40">
         <div>
-          <div className="flex items-center gap-2">
-            <span className="flex h-7 w-7 items-center justify-center rounded-md bg-primary/10 text-primary">
-              <ChartLineUp size={16} weight="bold" />
-            </span>
-            <CardTitle className="text-base font-semibold tracking-tight">
-              Actual vs. {horizon === "intraday" ? "Intraday" : "Day-Ahead"} Forecast Trend
-            </CardTitle>
-          </div>
+          <CardTitle className="text-base font-semibold tracking-tight">
+            Actual vs. {horizon === "intraday" ? "Intraday" : "Day-Ahead"} Forecast Trend
+          </CardTitle>
           <CardDescription className="text-xs mt-1">
             Continuous 30-minute settlement period telemetry (BMRS WINDFOR {horizon === "intraday" ? "Pre-Gate" : "D-1 Wholesale"} vs. FUELHH)
           </CardDescription>
@@ -74,7 +68,6 @@ export function WindForecastChart({
                 : "bg-muted/40 text-muted-foreground border-transparent opacity-60"
             }`}
           >
-            {seriesToggle.showActual ? <Eye size={13} weight="bold" /> : <EyeSlash size={13} />}
             <span className="h-2 w-2 rounded-full bg-blue-500" />
             <span>Actual</span>
           </button>
@@ -88,7 +81,6 @@ export function WindForecastChart({
                 : "bg-muted/40 text-muted-foreground border-transparent opacity-60"
             }`}
           >
-            {seriesToggle.showForecast ? <Eye size={13} weight="bold" /> : <EyeSlash size={13} />}
             <span className="h-2 w-2 rounded-full bg-rose-500" />
             <span>{horizon === "intraday" ? "Intraday" : "Day-Ahead"}</span>
           </button>
@@ -102,7 +94,6 @@ export function WindForecastChart({
                 : "bg-muted/40 text-muted-foreground border-transparent opacity-60"
             }`}
           >
-            {seriesToggle.showVariance ? <Eye size={13} weight="bold" /> : <EyeSlash size={13} />}
             <span className="h-2 w-2 rounded-full bg-emerald-500" />
             <span>Variance (Δ)</span>
           </button>

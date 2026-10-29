@@ -1,7 +1,6 @@
 import { MetricCard } from "./MetricCard";
 import type { ComputedWindAnalytics, ForecastHorizon } from "@/types/wind";
 import { formatNumber } from "@/lib/utils";
-import { Gauge, Wind, CalendarCheck, Scales } from "@phosphor-icons/react";
 
 interface MetricsGridProps {
   analytics: ComputedWindAnalytics;
@@ -17,10 +16,10 @@ export function MetricsGrid({ analytics, horizon = "day-ahead" }: MetricsGridPro
       {/* 1. Forecast Accuracy / RMSE */}
       <MetricCard
         title="Forecast Accuracy (RMSE)"
+        valueLabel="Model Loss"
         value={formatNumber(analytics.rmse, 2)}
         unit="MW"
         description={`${horizon === "intraday" ? "Intraday Pre-Gate" : "Day-Ahead D-1"} model loss`}
-        icon={<Gauge size={20} className="text-primary" weight="duotone" />}
         badgeText={`${analytics.accuracyRate.toFixed(1)}% Accuracy`}
         trend={analytics.accuracyRate >= 80 ? "up" : "down"}
         sentiment={analytics.accuracyRate >= 80 ? "positive" : "negative"}
@@ -33,6 +32,7 @@ export function MetricsGrid({ analytics, horizon = "day-ahead" }: MetricsGridPro
       {/* 2. Latest Actual Generation */}
       <MetricCard
         title="Actual Generation"
+        valueLabel="Latest Interval"
         value={
           analytics.latestActual !== null
             ? formatNumber(analytics.latestActual, 1)
@@ -40,7 +40,6 @@ export function MetricsGrid({ analytics, horizon = "day-ahead" }: MetricsGridPro
         }
         unit="MW"
         description="Real-time metered outturn"
-        icon={<Wind size={20} className="text-blue-500" weight="duotone" />}
         badgeText={`Peak: ${formatNumber(analytics.peakActual, 0)} MW`}
         trend="neutral"
         sentiment="neutral"
@@ -53,6 +52,7 @@ export function MetricsGrid({ analytics, horizon = "day-ahead" }: MetricsGridPro
       {/* 3. Forecast Generation */}
       <MetricCard
         title={horizon === "intraday" ? "Intraday Forecast" : "Day-Ahead Forecast"}
+        valueLabel="Latest Interval"
         value={
           analytics.latestForecast !== null
             ? formatNumber(analytics.latestForecast, 1)
@@ -64,7 +64,6 @@ export function MetricsGrid({ analytics, horizon = "day-ahead" }: MetricsGridPro
             ? "BMRS WINDFOR pre-gate updates"
             : "BMRS WINDFOR day-ahead schedule"
         }
-        icon={<CalendarCheck size={20} className="text-purple-500" weight="duotone" />}
         badgeText={`Peak: ${formatNumber(analytics.peakForecast, 0)} MW`}
         trend="neutral"
         sentiment="neutral"
@@ -77,10 +76,10 @@ export function MetricsGrid({ analytics, horizon = "day-ahead" }: MetricsGridPro
       {/* 4. Net Energy Balance & Variance */}
       <MetricCard
         title="Net Energy Variance"
+        valueLabel="Cumulative"
         value={formatNumber(Math.abs(varianceGWh), 1)}
         unit="GWh"
         description="Cumulative dispatch vs scheduled"
-        icon={<Scales size={20} className="text-emerald-500" weight="duotone" />}
         badgeText={isNetSurplus ? "+ Over-Gen" : "- Under-Gen"}
         trend={isNetSurplus ? "up" : "down"}
         sentiment={isNetSurplus ? "positive" : "negative"}
