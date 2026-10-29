@@ -107,18 +107,17 @@ def test_day_ahead_vs_intraday_horizons():
     assert result["day_ahead_rmse"] == pytest.approx(20.0)
     assert result["day_ahead_mae"] == pytest.approx(20.0)
     assert result["day_ahead_mbe"] == pytest.approx(-20.0)
-    assert result["day_ahead_nrmse"] == pytest.approx((20.0 / 30000.0) * 100.0)
+    assert result["day_ahead_nrmse"] == pytest.approx((20.0 / 32000.0) * 100.0)
 
     # Intraday metrics: 230 vs 220 -> diff = +10.0
     assert result["intraday_rmse"] == pytest.approx(10.0)
     assert result["intraday_mae"] == pytest.approx(10.0)
     assert result["intraday_mbe"] == pytest.approx(10.0)
-    assert result["intraday_nrmse"] == pytest.approx((10.0 / 30000.0) * 100.0)
+    assert result["intraday_nrmse"] == pytest.approx((10.0 / 32000.0) * 100.0)
 
     # Default metrics (aligns with Day-Ahead)
     assert result["root_mean_square_error"] == pytest.approx(20.0)
     assert result["mean_absolute_error"] == pytest.approx(20.0)
     assert result["mean_bias_error"] == pytest.approx(-20.0)
-    assert result["normalized_root_mean_square_error"] == pytest.approx((20.0 / 30000.0) * 100.0)
-    assert result["installed_capacity_mw"] == 30000.0
-
+    assert result["normalized_root_mean_square_error"] == pytest.approx((20.0 / 32000.0) * 100.0)
+    assert result["installed_capacity_mw"] == 32000.0
