@@ -16,6 +16,16 @@ export interface WindDataResponse {
   root_mean_square_error: number;
   day_ahead_rmse?: number;
   intraday_rmse?: number;
+  mean_absolute_error?: number;
+  day_ahead_mae?: number;
+  intraday_mae?: number;
+  mean_bias_error?: number;
+  day_ahead_mbe?: number;
+  intraday_mbe?: number;
+  normalized_root_mean_square_error?: number;
+  day_ahead_nrmse?: number;
+  intraday_nrmse?: number;
+  installed_capacity_mw?: number;
   // Optional alias for backwards compatibility
   root_mean_squared_error?: number;
 }

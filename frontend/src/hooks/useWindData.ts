@@ -307,6 +307,16 @@ export function useWindData(): UseWindDataState {
             0,
           day_ahead_rmse: dayAheadRmse,
           intraday_rmse: intradayRmse,
+          mean_absolute_error: jsonResult.mean_absolute_error,
+          day_ahead_mae: jsonResult.day_ahead_mae,
+          intraday_mae: jsonResult.intraday_mae,
+          mean_bias_error: jsonResult.mean_bias_error,
+          day_ahead_mbe: jsonResult.day_ahead_mbe,
+          intraday_mbe: jsonResult.intraday_mbe,
+          normalized_root_mean_square_error: jsonResult.normalized_root_mean_square_error,
+          day_ahead_nrmse: jsonResult.day_ahead_nrmse,
+          intraday_nrmse: jsonResult.intraday_nrmse,
+          installed_capacity_mw: jsonResult.installed_capacity_mw ?? 30000,
         };
 
         setData(normalizedResult);

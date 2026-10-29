@@ -152,29 +152,49 @@ def process_wind_data(actuals_data: list, forecasts_data: list) -> dict[str, Any
 
     df_merged = df_merged[columns].sort_values(by="start_time")
 
-    # Day-Ahead RMSE
+    installed_capacity = 32000.0
+
+    # Day-Ahead Metrics
     df_da_math = df_merged.dropna(subset=["actual_generation", "forecast_day_ahead_generation"])
-    day_ahead_rmse = (
-        float((((df_da_math["forecast_day_ahead_generation"] - df_da_math["actual_generation"]) ** 2).mean()) ** 0.5)
-        if not df_da_math.empty
-        else None
-    )
+    if not df_da_math.empty:
+        da_diff = df_da_math["forecast_day_ahead_generation"] - df_da_math["actual_generation"]
+        day_ahead_rmse = float(((da_diff ** 2).mean()) ** 0.5)
+        day_ahead_mae = float(da_diff.abs().mean())
+        day_ahead_mbe = float(da_diff.mean())
+        day_ahead_nrmse = float((day_ahead_rmse / installed_capacity) * 100.0)
+    else:
+        day_ahead_rmse = None
+        day_ahead_mae = None
+        day_ahead_mbe = None
+        day_ahead_nrmse = None
 
-    # Intraday RMSE
+    # Intraday Metrics
     df_intra_math = df_merged.dropna(subset=["actual_generation", "forecast_intraday_generation"])
-    intraday_rmse = (
-        float((((df_intra_math["forecast_intraday_generation"] - df_intra_math["actual_generation"]) ** 2).mean()) ** 0.5)
-        if not df_intra_math.empty
-        else None
-    )
+    if not df_intra_math.empty:
+        intra_diff = df_intra_math["forecast_intraday_generation"] - df_intra_math["actual_generation"]
+        intraday_rmse = float(((intra_diff ** 2).mean()) ** 0.5)
+        intraday_mae = float(intra_diff.abs().mean())
+        intraday_mbe = float(intra_diff.mean())
+        intraday_nrmse = float((intraday_rmse / installed_capacity) * 100.0)
+    else:
+        intraday_rmse = None
+        intraday_mae = None
+        intraday_mbe = None
+        intraday_nrmse = None
 
-    # Active default RMSE (falls back to 0.0 if empty)
+    # Active default metrics (falls back to 0.0 if empty)
     df_math = df_merged.dropna(subset=["actual_generation", "forecast_generation"])
     if df_math.empty:
         rmse_val = 0.0
+        mae_val = 0.0
+        mbe_val = 0.0
+        nrmse_val = 0.0
     else:
-        mse = ((df_math["forecast_generation"] - df_math["actual_generation"]) ** 2).mean()
-        rmse_val = float(mse ** 0.5)
+        diff = df_math["forecast_generation"] - df_math["actual_generation"]
+        rmse_val = float(((diff ** 2).mean()) ** 0.5)
+        mae_val = float(diff.abs().mean())
+        mbe_val = float(diff.mean())
+        nrmse_val = float((rmse_val / installed_capacity) * 100.0)
 
     df_merged = df_merged.astype(object).where(pd.notnull(df_merged), None)
 
@@ -183,6 +203,16 @@ def process_wind_data(actuals_data: list, forecasts_data: list) -> dict[str, Any
         "root_mean_square_error": rmse_val,
         "day_ahead_rmse": day_ahead_rmse,
         "intraday_rmse": intraday_rmse,
+        "mean_absolute_error": mae_val,
+        "day_ahead_mae": day_ahead_mae,
+        "intraday_mae": intraday_mae,
+        "mean_bias_error": mbe_val,
+        "day_ahead_mbe": day_ahead_mbe,
+        "intraday_mbe": intraday_mbe,
+        "normalized_root_mean_square_error": nrmse_val,
+        "day_ahead_nrmse": day_ahead_nrmse,
+        "intraday_nrmse": intraday_nrmse,
+        "installed_capacity_mw": installed_capacity,
     }
 
 
