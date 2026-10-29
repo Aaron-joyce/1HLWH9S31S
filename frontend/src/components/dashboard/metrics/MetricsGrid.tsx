@@ -1,13 +1,14 @@
 import { MetricCard } from "./MetricCard";
-import type { ComputedWindAnalytics } from "@/types/wind";
+import type { ComputedWindAnalytics, ForecastHorizon } from "@/types/wind";
 import { formatNumber } from "@/lib/utils";
 import { Gauge, Wind, CalendarCheck, Scales } from "@phosphor-icons/react";
 
 interface MetricsGridProps {
   analytics: ComputedWindAnalytics;
+  horizon?: ForecastHorizon;
 }
 
-export function MetricsGrid({ analytics }: MetricsGridProps) {
+export function MetricsGrid({ analytics, horizon = "day-ahead" }: MetricsGridProps) {
   const varianceGWh = analytics.overallVarianceMWh / 1000;
   const isNetSurplus = varianceGWh >= 0;
 
@@ -18,7 +19,7 @@ export function MetricsGrid({ analytics }: MetricsGridProps) {
         title="Forecast Accuracy (RMSE)"
         value={formatNumber(analytics.rmse, 2)}
         unit="MW"
-        description="Elexon Model Loss Metric"
+        description={`${horizon === "intraday" ? "Intraday Pre-Gate" : "Day-Ahead D-1"} model loss`}
         icon={<Gauge size={20} className="text-primary" weight="duotone" />}
         badgeText={`${analytics.accuracyRate.toFixed(1)}% Accuracy`}
         trend={analytics.accuracyRate >= 80 ? "up" : "down"}
@@ -49,16 +50,20 @@ export function MetricsGrid({ analytics }: MetricsGridProps) {
         }}
       />
 
-      {/* 3. Day-Ahead Forecast */}
+      {/* 3. Forecast Generation */}
       <MetricCard
-        title="Day-Ahead Forecast"
+        title={horizon === "intraday" ? "Intraday Forecast" : "Day-Ahead Forecast"}
         value={
           analytics.latestForecast !== null
             ? formatNumber(analytics.latestForecast, 1)
             : "—"
         }
         unit="MW"
-        description="BMRS WINDFOR day-ahead schedule"
+        description={
+          horizon === "intraday"
+            ? "BMRS WINDFOR pre-gate updates"
+            : "BMRS WINDFOR day-ahead schedule"
+        }
         icon={<CalendarCheck size={20} className="text-purple-500" weight="duotone" />}
         badgeText={`Peak: ${formatNumber(analytics.peakForecast, 0)} MW`}
         trend="neutral"

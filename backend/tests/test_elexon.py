@@ -75,3 +75,38 @@ def test_process_wind_data_filters_ex_post_and_out_of_bounds():
     # Must pick the pre-delivery forecast (95.0), not the ex-post (99.0)
     assert point["forecast_generation"] == 95.0
     assert result["root_mean_square_error"] == pytest.approx(5.0)
+
+
+def test_day_ahead_vs_intraday_horizons():
+    # Delivery on 2026-01-05 12:00:00Z
+    mock_actuals = [
+        {"startTime": "2026-01-05T12:00:00Z", "generation": 220.0, "fuelType": "WIND"},
+    ]
+
+    mock_forecasts = [
+        # D-1 forecast (published on Jan 4 before Jan 5 00:00 UTC)
+        {"startTime": "2026-01-05T12:00:00Z", "generation": 200.0, "publishTime": "2026-01-04T18:00:00Z"},
+        # Intraday update (published on Jan 5 at 09:00 UTC before 12:00 delivery)
+        {"startTime": "2026-01-05T12:00:00Z", "generation": 230.0, "publishTime": "2026-01-05T09:00:00Z"},
+    ]
+
+    result = process_wind_data(mock_actuals, mock_forecasts)
+
+    assert len(result["data"]) == 1
+    point = result["data"][0]
+
+    # Verify separate horizons
+    assert point["actual_generation"] == 220.0
+    assert point["forecast_day_ahead_generation"] == 200.0
+    assert point["forecast_intraday_generation"] == 230.0
+
+    # Default forecast_generation should align with Day-Ahead wholesale procurement
+    assert point["forecast_generation"] == 200.0
+
+    # Day-Ahead error: 200 vs 220 -> RMSE = 20.0
+    assert result["day_ahead_rmse"] == pytest.approx(20.0)
+    # Intraday error: 230 vs 220 -> RMSE = 10.0
+    assert result["intraday_rmse"] == pytest.approx(10.0)
+    # Default root_mean_square_error matches Day-Ahead
+    assert result["root_mean_square_error"] == pytest.approx(20.0)
+

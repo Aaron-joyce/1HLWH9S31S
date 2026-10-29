@@ -3,9 +3,10 @@ import { useWindData, computeAnalytics } from "./hooks/useWindData";
 import { useDashboardFilters } from "./hooks/useDashboardFilters";
 import { DashboardLayout } from "./components/dashboard/layout/DashboardLayout";
 import { DateRangeSelector } from "./components/dashboard/filters/DateRangeSelector";
+import { ForecastHorizonToggle } from "./components/dashboard/filters/ForecastHorizonToggle";
 import { MetricsGrid } from "./components/dashboard/metrics/MetricsGrid";
 import { WindForecastChart } from "./components/dashboard/charts/WindForecastChart";
-import { GenerationVolumeChart } from "./components/dashboard/charts/GenerationVolumeChart";
+import { CumulativeEnergyChart } from "./components/dashboard/charts/CumulativeEnergyChart";
 import { GenerationMixChart } from "./components/dashboard/charts/GenerationMixChart";
 import { CapacityBarChart } from "./components/dashboard/charts/CapacityBarChart";
 import { DashboardSkeleton } from "./components/dashboard/states/DashboardSkeleton";
@@ -15,7 +16,7 @@ import { Badge } from "./components/ui/badge";
 import { Button } from "./components/ui/button";
 import {
   DownloadSimple,
-  ShareNetwork,
+  FilePdf,
   Cpu,
 } from "@phosphor-icons/react";
 
@@ -33,6 +34,8 @@ export default function App() {
   } = useWindData();
 
   const {
+    forecastHorizon,
+    setForecastHorizon,
     dateRange,
     setDateRange,
     seriesToggle,
@@ -42,28 +45,36 @@ export default function App() {
 
   const activeAnalytics = useMemo(() => {
     if (!filteredPoints || filteredPoints.length === 0) return analytics;
-    if (data && filteredPoints.length === data.data.length) return analytics;
-    return computeAnalytics(filteredPoints, analytics?.rmse);
-  }, [filteredPoints, analytics, data]);
+    return computeAnalytics(filteredPoints);
+  }, [filteredPoints, analytics]);
 
   const handleExportCSV = () => {
     if (!filteredPoints || filteredPoints.length === 0) return;
-    const headers = "start_time,actual_generation,forecast_generation\n";
+    const headers = "start_time,actual_generation,forecast_generation,horizon\n";
     const rows = filteredPoints
       .map(
         (p) =>
           `"${p.start_time}",${p.actual_generation ?? ""},${
             p.forecast_generation ?? ""
-          }`
+          },"${forecastHorizon}"`
       )
       .join("\n");
     const blob = new Blob([headers + rows], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `wind-telemetry-${dateRange.startDate}_${dateRange.endDate}.csv`;
+    a.download = `wind-telemetry-${forecastHorizon}-${dateRange.startDate}_${dateRange.endDate}.csv`;
     a.click();
     URL.revokeObjectURL(url);
+  };
+
+  const handleSavePDF = () => {
+    const originalTitle = document.title;
+    document.title = `Wind-Power-Generation-Analytics-${forecastHorizon.toUpperCase()}-${dateRange.startDate}_${dateRange.endDate}`;
+    window.print();
+    setTimeout(() => {
+      document.title = originalTitle;
+    }, 1500);
   };
 
   return (
@@ -99,8 +110,8 @@ export default function App() {
       {/* 4. Active Dashboard View */}
       {!loading && !error && data && activeAnalytics && (
         <div className="space-y-6">
-          {/* Dashboard Header Bar: Title on left, Date Selector in center, Export/Share on right */}
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-border/40 pb-5">
+          {/* Dashboard Header Bar: Title on left, Date Selector & Horizon Toggle in center, Export/Share on right */}
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 border-b border-border/40 pb-5">
             {/* Left: Wind Power Generation Analytics */}
             <div className="space-y-1">
               <div className="flex items-center gap-2.5">
@@ -115,18 +126,26 @@ export default function App() {
                 </Badge>
               </div>
               <p className="text-xs sm:text-sm text-muted-foreground">
-                Actual transmission outturn (FUELHH) versus Day-Ahead generation schedule (WINDFOR)
+                Actual transmission outturn (FUELHH) versus {forecastHorizon === "day-ahead" ? "Day-Ahead (D-1 Wholesale)" : "Intraday (Pre-Gate)"} generation schedule (WINDFOR)
               </p>
             </div>
 
-            {/* Right: Quick Action Tools (Export CSV & Share) */}
-            <div className="flex items-center gap-2">
-              <div className="flex items-center justify-start md:justify-center">
-                <DateRangeSelector
-                  dateRange={dateRange}
-                  onChangeDateRange={setDateRange}
-                />
-              </div>
+            {/* Center: Controls (Date Selector + Horizon Toggle) */}
+            <div className="flex flex-wrap items-center justify-start lg:justify-center gap-2">
+              <DateRangeSelector
+                dateRange={dateRange}
+                onChangeDateRange={setDateRange}
+              />
+              <ForecastHorizonToggle
+                horizon={forecastHorizon}
+                onChangeHorizon={setForecastHorizon}
+                dayAheadRmse={data?.day_ahead_rmse ?? undefined}
+                intradayRmse={data?.intraday_rmse ?? undefined}
+              />
+            </div>
+
+            {/* Right: Quick Action Tools (Export CSV & Save as PDF) */}
+            <div className="flex items-center gap-2 print:hidden">
               <Button
                 type="button"
                 variant="outline"
@@ -141,24 +160,17 @@ export default function App() {
                 type="button"
                 variant="outline"
                 size="sm"
-                onClick={() => {
-                  if (navigator.share) {
-                    void navigator.share({
-                      title: "Wind Generation Analytics",
-                      url: window.location.href,
-                    });
-                  }
-                }}
+                onClick={handleSavePDF}
                 className="gap-1.5 text-xs text-muted-foreground hover:text-foreground"
               >
-                <ShareNetwork size={14} />
-                <span>Share</span>
+                <FilePdf size={14} />
+                <span>Save as PDF</span>
               </Button>
             </div>
           </div>
 
           {/* Section 1: KPI Metrics Grid */}
-          <MetricsGrid analytics={activeAnalytics} />
+          <MetricsGrid analytics={activeAnalytics} horizon={forecastHorizon} />
 
           {/* Section 2: Primary Charts (Multi-line Trend & Donut Distribution) */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
@@ -166,9 +178,14 @@ export default function App() {
               <WindForecastChart
                 data={filteredPoints}
                 rmse={activeAnalytics.rmse}
-                benchmarkRmse={analytics?.rmse}
+                benchmarkRmse={
+                  forecastHorizon === "day-ahead"
+                    ? data.day_ahead_rmse
+                    : data.intraday_rmse
+                }
                 seriesToggle={seriesToggle}
                 onToggleSeries={toggleSeries}
+                horizon={forecastHorizon}
               />
             </div>
             <div className="lg:col-span-4">
@@ -179,10 +196,10 @@ export default function App() {
             </div>
           </div>
 
-          {/* Section 3: Secondary Visualizations (Area Volume & Diurnal Profile) */}
+          {/* Section 3: Secondary Visualizations (Cumulative Energy & Diurnal Profile) */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
             <div className="lg:col-span-7">
-              <GenerationVolumeChart data={filteredPoints} />
+              <CumulativeEnergyChart data={filteredPoints} horizon={forecastHorizon} />
             </div>
             <div className="lg:col-span-5">
               <CapacityBarChart data={activeAnalytics.hourlyProfile} />

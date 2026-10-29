@@ -11,7 +11,7 @@ import {
 } from "recharts";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { CustomChartTooltip } from "./CustomChartTooltip";
-import type { WindDataPoint } from "@/types/wind";
+import type { WindDataPoint, ForecastHorizon } from "@/types/wind";
 import type { ChartSeriesToggle } from "@/types/analytics";
 import { formatDateShort } from "@/lib/utils";
 import { ChartLineUp, Eye, EyeSlash } from "@phosphor-icons/react";
@@ -22,6 +22,7 @@ interface WindForecastChartProps {
   benchmarkRmse?: number;
   seriesToggle: ChartSeriesToggle;
   onToggleSeries: (seriesKey: keyof ChartSeriesToggle) => void;
+  horizon?: ForecastHorizon;
 }
 
 export function WindForecastChart({
@@ -30,6 +31,7 @@ export function WindForecastChart({
   benchmarkRmse,
   seriesToggle,
   onToggleSeries,
+  horizon = "day-ahead",
 }: WindForecastChartProps) {
   // Transform data for chart: add computed delta when both exist
   const chartData = useMemo(() => {
@@ -53,11 +55,11 @@ export function WindForecastChart({
               <ChartLineUp size={16} weight="bold" />
             </span>
             <CardTitle className="text-base font-semibold tracking-tight">
-              Actual vs. Day-Ahead Forecast Trend
+              Actual vs. {horizon === "intraday" ? "Intraday" : "Day-Ahead"} Forecast Trend
             </CardTitle>
           </div>
           <CardDescription className="text-xs mt-1">
-            Continuous 30-minute settlement period telemetry (BMRS WINDFOR vs. FUELHH)
+            Continuous 30-minute settlement period telemetry (BMRS WINDFOR {horizon === "intraday" ? "Pre-Gate" : "D-1 Wholesale"} vs. FUELHH)
           </CardDescription>
         </div>
 
@@ -88,7 +90,7 @@ export function WindForecastChart({
           >
             {seriesToggle.showForecast ? <Eye size={13} weight="bold" /> : <EyeSlash size={13} />}
             <span className="h-2 w-2 rounded-full bg-rose-500" />
-            <span>Forecast</span>
+            <span>{horizon === "intraday" ? "Intraday" : "Day-Ahead"}</span>
           </button>
 
           <button
@@ -183,7 +185,7 @@ export function WindForecastChart({
                 <Line
                   type="monotone"
                   dataKey="forecast_generation"
-                  name="Forecast Generation"
+                  name={horizon === "intraday" ? "Intraday Forecast" : "Day-Ahead Forecast"}
                   stroke="#f43f5e"
                   strokeWidth={2}
                   strokeDasharray="4 4"

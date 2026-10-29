@@ -248,13 +248,51 @@ export function useWindData(): UseWindDataState {
           throw new Error("Invalid response format: 'data' array expected from backend.");
         }
 
-        // Normalize RMSE property if needed
+        // Normalize RMSE properties if needed
+        let dayAheadRmse = jsonResult.day_ahead_rmse;
+        let intradayRmse = jsonResult.intraday_rmse;
+
+        // Fallback calculation from points if backend response lacks pre-calculated fields
+        if (dayAheadRmse === undefined || intradayRmse === undefined) {
+          let daSumSq = 0;
+          let daCount = 0;
+          let intraSumSq = 0;
+          let intraCount = 0;
+
+          for (const p of jsonResult.data) {
+            if (p.actual_generation !== null && p.actual_generation !== undefined) {
+              const da = p.forecast_day_ahead_generation ?? p.forecast_generation;
+              if (da !== null && da !== undefined) {
+                const diff = p.actual_generation - da;
+                daSumSq += diff * diff;
+                daCount++;
+              }
+              const intra = p.forecast_intraday_generation ?? p.forecast_generation;
+              if (intra !== null && intra !== undefined) {
+                const diff = p.actual_generation - intra;
+                intraSumSq += diff * diff;
+                intraCount++;
+              }
+            }
+          }
+
+          if (dayAheadRmse === undefined && daCount > 0) {
+            dayAheadRmse = Math.sqrt(daSumSq / daCount);
+          }
+          if (intradayRmse === undefined && intraCount > 0) {
+            intradayRmse = Math.sqrt(intraSumSq / intraCount);
+          }
+        }
+
         const normalizedResult: WindDataResponse = {
           data: jsonResult.data,
           root_mean_square_error:
             jsonResult.root_mean_square_error ??
             jsonResult.root_mean_squared_error ??
+            dayAheadRmse ??
             0,
+          day_ahead_rmse: dayAheadRmse,
+          intraday_rmse: intradayRmse,
         };
 
         setData(normalizedResult);

@@ -64,7 +64,7 @@ export function Header({
           onClick={() => void onRefresh()}
           disabled={isRefreshing}
           title="Refresh Data from Ingestion Gateway"
-          className="text-muted-foreground hover:text-foreground"
+          className="text-muted-foreground hover:text-foreground print:hidden"
         >
           {isRefreshing ? (
             <CircleNotch size={14} className="animate-spin text-primary" />
@@ -74,7 +74,7 @@ export function Header({
         </Button>
 
         {/* Notifications Dropdown */}
-        <div className="relative">
+        <div className="relative print:hidden">
           <Button
             type="button"
             variant="outline"

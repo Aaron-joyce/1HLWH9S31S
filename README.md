@@ -6,12 +6,11 @@ When buying electricity for the next day, the procurement team needs to estimate
 
 ---
 
-<!--## Live Links
+## Live Links
 
-- **Live Application:** [https://your-app-name.vercel.app](https://your-app-name.vercel.app) *(Replace with your deployed URL)*
-- **Demo Video:** [https://youtu.be/your-video-id](https://youtu.be/your-video-id) *(Replace with your unlisted YouTube link)*
+- **Live Application:** https://wind-dashboard-frontend.vercel.app/
 
------>
+---
 
 ## What the Dashboard Does
 

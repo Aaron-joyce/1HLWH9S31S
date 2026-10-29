@@ -20,7 +20,7 @@ interface GenerationVolumeChartProps {
 export function GenerationVolumeChart({ data }: GenerationVolumeChartProps) {
   return (
     <Card className="h-full border border-border/80 shadow-xs">
-      <CardHeader className="flex flex-row items-center justify-between pb-3 border-b border-border/40">
+      <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-border/40">
         <div>
           <div className="flex items-center gap-2">
             <span className="flex h-7 w-7 items-center justify-center rounded-md bg-sky-500/10 text-sky-500">
@@ -33,6 +33,18 @@ export function GenerationVolumeChart({ data }: GenerationVolumeChartProps) {
           <CardDescription className="text-xs mt-1">
             Real-time power volume delivered across UK grid transmission nodes
           </CardDescription>
+        </div>
+
+        {/* Legend indicators */}
+        <div className="flex items-center gap-3 text-xs">
+          <div className="flex items-center gap-1.5 text-muted-foreground">
+            <span className="h-2 w-2 rounded-full bg-blue-500" />
+            <span className="font-medium text-foreground">Dispatched</span>
+          </div>
+          <div className="flex items-center gap-1.5 text-muted-foreground">
+            <span className="h-2 w-2 rounded-full bg-purple-500" />
+            <span className="font-medium text-foreground">Scheduled Forecast</span>
+          </div>
         </div>
       </CardHeader>
 
@@ -49,8 +61,8 @@ export function GenerationVolumeChart({ data }: GenerationVolumeChartProps) {
                   <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.0} />
                 </linearGradient>
                 <linearGradient id="forecastVolumeGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.25} />
-                  <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0.0} />
+                  <stop offset="5%" stopColor="#a855f7" stopOpacity={0.25} />
+                  <stop offset="95%" stopColor="#a855f7" stopOpacity={0.0} />
                 </linearGradient>
               </defs>
               <CartesianGrid
@@ -85,17 +97,19 @@ export function GenerationVolumeChart({ data }: GenerationVolumeChartProps) {
                 strokeWidth={2}
                 fillOpacity={1}
                 fill="url(#actualVolumeGrad)"
+                connectNulls={true}
                 isAnimationActive={false}
               />
               <Area
                 type="monotone"
                 dataKey="forecast_generation"
                 name="Scheduled Forecast"
-                stroke="#8b5cf6"
-                strokeWidth={1.5}
-                strokeDasharray="3 3"
+                stroke="#a855f7"
+                strokeWidth={1.75}
+                strokeDasharray="4 4"
                 fillOpacity={1}
                 fill="url(#forecastVolumeGrad)"
+                connectNulls={true}
                 isAnimationActive={false}
               />
             </AreaChart>
