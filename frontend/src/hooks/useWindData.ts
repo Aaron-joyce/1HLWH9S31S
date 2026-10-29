@@ -43,6 +43,7 @@ export function computeAnalytics(
   let sumForecast = 0;
   let sumAbsError = 0;
   let sumSquaredError = 0;
+  let sumForecastBias = 0;
   let peakActual = 0;
   let peakForecast = 0;
 
@@ -80,6 +81,7 @@ export function computeAnalytics(
       const delta = act - fcast;
       sumAbsError += Math.abs(delta);
       sumSquaredError += delta * delta;
+      sumForecastBias += (fcast - act);
 
       if (delta > 1000) severeUnder++;
       else if (delta > 200) modUnder++;
@@ -182,11 +184,23 @@ export function computeAnalytics(
     ? Math.sqrt(sumSquaredError / validPairs.length)
     : (responseRmse ?? fallbackRmse ?? 0);
 
+  const mbe = validPairs.length > 0 ? sumForecastBias / validPairs.length : 0;
+  // GB registered wind fleet capacity baseline (~30 GW)
+  const installedCapacityMW = 30000;
+  const nrmse = (rmse / installedCapacityMW) * 100;
+  const nmbe = (mbe / installedCapacityMW) * 100;
+  const wapeErrorRate = avgActual > 0 ? (mae / avgActual) * 100 : 0;
+
   return {
     totalRecords: points.length,
     validPairs: validPairs.length,
     rmse,
     mae,
+    mbe,
+    nmbe,
+    nrmse,
+    wapeErrorRate,
+    installedCapacityMW,
     latestActual,
     latestForecast,
     peakActual,

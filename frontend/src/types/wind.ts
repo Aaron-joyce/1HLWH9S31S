@@ -25,6 +25,11 @@ export interface ComputedWindAnalytics {
   validPairs: number;
   rmse: number;
   mae: number;
+  mbe: number;
+  nmbe: number;
+  nrmse: number;
+  wapeErrorRate: number;
+  installedCapacityMW: number;
   latestActual: number | null;
   latestForecast: number | null;
   peakActual: number;

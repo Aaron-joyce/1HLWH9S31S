@@ -9,6 +9,7 @@ export interface MetricCardProps {
   valueLabel?: string;
   description?: string;
   badgeText?: string;
+  badgeTitle?: string;
   trend?: "up" | "down" | "neutral";
   sentiment?: "positive" | "negative" | "neutral";
   secondaryMetric?: {
@@ -24,6 +25,7 @@ export function MetricCard({
   valueLabel,
   description,
   badgeText,
+  badgeTitle,
   trend,
   sentiment = "neutral",
   secondaryMetric,
@@ -66,7 +68,8 @@ export function MetricCard({
           {badgeText && (
             <Badge
               variant={getBadgeVariant()}
-              className="p-1 text-[10px] font-mono font-medium inline-flex items-center justify-center gap-1 leading-none"
+              title={badgeTitle}
+              className="p-1 text-[10px] font-mono font-medium inline-flex items-center justify-center gap-1 leading-none cursor-default"
             >
               {trend === "up" && <TrendUp size={10} weight="bold" className="shrink-0" />}
               {trend === "down" && <TrendDown size={10} weight="bold" className="shrink-0" />}

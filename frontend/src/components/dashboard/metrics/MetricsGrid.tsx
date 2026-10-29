@@ -13,63 +13,64 @@ export function MetricsGrid({ analytics, horizon = "day-ahead" }: MetricsGridPro
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-      {/* 1. Forecast Accuracy / RMSE */}
+      {/* 1. Forecast Error / RMSE */}
       <MetricCard
-        title="Forecast Accuracy (RMSE)"
+        title="Forecast Error (RMSE)"
         valueLabel="Model Loss"
         value={formatNumber(analytics.rmse, 2)}
         unit="MW"
-        description={`${horizon === "intraday" ? "Intraday Pre-Gate" : "Day-Ahead D-1"} model loss`}
-        badgeText={`${analytics.accuracyRate.toFixed(1)}% Accuracy`}
+        description={`${horizon === "intraday" ? "Intraday Pre-Gate" : "Day-Ahead D-1"} root mean square error`}
+        badgeText={`${analytics.accuracyRate.toFixed(1)}% WAPE Acc.`}
+        badgeTitle="Weighted Absolute Percentage Error (WAPE) accuracy: 100% - (MAE / Avg Actual)"
         trend={analytics.accuracyRate >= 80 ? "up" : "down"}
         sentiment={analytics.accuracyRate >= 80 ? "positive" : "negative"}
         secondaryMetric={{
           label: "MAE",
-          value: `${formatNumber(analytics.mae, 1)} MW`,
+          value: `${formatNumber(analytics.mae, 1)} MW (${analytics.wapeErrorRate.toFixed(1)}% err)`,
         }}
       />
 
-      {/* 2. Latest Actual Generation */}
+      {/* 2. Mean Bias Error (MBE) */}
       <MetricCard
-        title="Actual Generation"
-        valueLabel="Latest Interval"
-        value={
-          analytics.latestActual !== null
-            ? formatNumber(analytics.latestActual, 1)
-            : "—"
-        }
+        title="Mean Bias Error (MBE)"
+        valueLabel="Directional Bias"
+        value={`${analytics.mbe > 0 ? "+" : ""}${formatNumber(analytics.mbe, 1)}`}
         unit="MW"
-        description="Real-time metered outturn"
-        badgeText={`Peak: ${formatNumber(analytics.peakActual, 0)} MW`}
-        trend="neutral"
-        sentiment="neutral"
+        description="Systematic drift per 30-min settlement period"
+        badgeText={
+          analytics.mbe > 150
+            ? "+ Over-Forecast"
+            : analytics.mbe < -150
+            ? "- Under-Forecast"
+            : "Balanced (±150 MW)"
+        }
+        badgeTitle="Mean difference (Forecast - Actual). Positive indicates model over-predicts generation yield."
+        trend={Math.abs(analytics.mbe) <= 200 ? "neutral" : analytics.mbe > 0 ? "up" : "down"}
+        sentiment={Math.abs(analytics.mbe) <= 200 ? "positive" : "negative"}
         secondaryMetric={{
-          label: "Avg",
-          value: `${formatNumber(analytics.avgActual, 0)} MW`,
+          label: "NMBE",
+          value: `${analytics.nmbe > 0 ? "+" : ""}${analytics.nmbe.toFixed(2)}%`,
         }}
       />
 
-      {/* 3. Forecast Generation */}
+      {/* 3. Normalized RMSE (NRMSE) */}
       <MetricCard
-        title={horizon === "intraday" ? "Intraday Forecast" : "Day-Ahead Forecast"}
-        valueLabel="Latest Interval"
-        value={
-          analytics.latestForecast !== null
-            ? formatNumber(analytics.latestForecast, 1)
-            : "—"
+        title="Normalized RMSE (NRMSE)"
+        valueLabel="Capacity Scale"
+        value={`${analytics.nrmse.toFixed(1)}%`}
+        unit="of Cap."
+        description="Loss scaled against 30 GW GB registered fleet capacity"
+        badgeText={
+          analytics.nrmse <= 8.5
+            ? "< 8.5% Benchmark"
+            : `${analytics.nrmse.toFixed(1)}% Loss`
         }
-        unit="MW"
-        description={
-          horizon === "intraday"
-            ? "BMRS WINDFOR pre-gate updates"
-            : "BMRS WINDFOR day-ahead schedule"
-        }
-        badgeText={`Peak: ${formatNumber(analytics.peakForecast, 0)} MW`}
-        trend="neutral"
-        sentiment="neutral"
+        badgeTitle="RMSE divided by nominal GB wind fleet capacity (30,000 MW). Under 8.5% is industry standard."
+        trend={analytics.nrmse <= 8.5 ? "up" : "down"}
+        sentiment={analytics.nrmse <= 8.5 ? "positive" : "negative"}
         secondaryMetric={{
-          label: "Avg",
-          value: `${formatNumber(analytics.avgForecast, 0)} MW`,
+          label: "Capacity",
+          value: `${(analytics.installedCapacityMW / 1000).toFixed(1)} GW`,
         }}
       />
 
